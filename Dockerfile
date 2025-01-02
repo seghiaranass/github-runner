@@ -41,8 +41,7 @@ RUN useradd --create-home actions && \
 RUN usermod -aG docker actions
 
 # Adjust permissions for Docker socket
-RUN mkdir -p /var/run/docker.sock && \
-    chown root:docker /var/run/docker.sock && \
+RUN chown root:docker /var/run/docker.sock && \
     chmod 660 /var/run/docker.sock
 
 USER actions
