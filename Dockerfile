@@ -6,7 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Check https://github.com/actions/runner/releases for the latest version.
 ENV RUNNER_VERSION="2.321.0"
 ENV RUNNER_ARCH="x64"
-ENV RUNNER_HOME="/home/actions"
+ENV RUNNER_HOME="/actions"
 ENV RUNNER_WORKDIR="${RUNNER_HOME}/_work"
 ENV RUNNER_TGZ="actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz"
 
