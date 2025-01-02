@@ -1,0 +1,26 @@
+services:
+  github-runner:
+    build: .
+    container_name: github-actions-runner
+    # `privileged` is not strictly required for socket binding, but you might 
+    # find it helpful for certain Docker operations within the container. 
+    # If you find you can do everything you need without it, remove it.
+    privileged: true
+
+    # Bind the host's Docker socket to use the host Docker daemon
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      # The GitHub repository or org for your runner
+      - RUNNER_URL=https://github.com/<YOUR_ORG_OR_USER>/<YOUR_REPO>
+      # The runner registration token from your repo
+      - RUNNER_TOKEN=<YOUR_TOKEN>
+      # Optional: A custom name for your runner
+      - RUNNER_NAME=MyDockerRunner
+      # Optional: Custom labels for your runner
+      - RUNNER_LABELS=self-hosted,docker
+
+    # If you want to remove the container automatically after it stops,
+    # you can set `restart: unless-stopped` or similar.
+    restart: unless-stopped
