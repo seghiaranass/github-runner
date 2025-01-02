@@ -32,7 +32,7 @@ RUN apt-get update && \
 # Create a non-root user "actions" to run the runner
 RUN useradd --create-home actions && \
     mkdir -p ${RUNNER_HOME} && \
-    chown actions:actions ${RUNNER_HOME}
+    chown -R actions:actions ${RUNNER_HOME}
 
 USER actions
 WORKDIR $RUNNER_HOME
