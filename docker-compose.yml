@@ -5,8 +5,8 @@ services:
     privileged: true
     # Bind the host's Docker socket to use the host Docker daemon
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /usr/bin/docker-compose:/usr/bin/docker-compose:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker-compose:/usr/bin/docker-compose
       - ~/runner-worker:/home/actions/_work
       
     environment:
