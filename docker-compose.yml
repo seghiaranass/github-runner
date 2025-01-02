@@ -6,7 +6,7 @@ services:
     # Bind the host's Docker socket to use the host Docker daemon
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/local/lib/docker/cli-plugins/docker-compose:/usr/local/lib/docker/cli-plugins/docker-compose
+      - /usr/bin/docker-compose:/usr/bin/docker-compose
       - ~/runner-worker:/home/actions/_work
       
     environment:

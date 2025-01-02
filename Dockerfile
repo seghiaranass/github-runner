@@ -46,7 +46,7 @@ RUN curl -o ${RUNNER_TGZ} -L https://github.com/actions/runner/releases/download
 USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && chown actions:actions /entrypoint.sh
-USER actions
+# USER actions
 
 # By default, this directory is where runner will do builds
 RUN mkdir -p ${RUNNER_WORKDIR}
