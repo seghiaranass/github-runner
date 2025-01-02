@@ -29,13 +29,21 @@ RUN apt-get update && \
         docker.io \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 1) Ensure 'docker' group exists in container
+# Ensure 'docker' group exists in container
 RUN groupadd docker || true
 
 # Create a non-root user "actions" to run the runner
 RUN useradd --create-home actions && \
     mkdir -p ${RUNNER_HOME} && \
     chown -R actions:actions ${RUNNER_HOME}
+
+# Add "actions" user to the "docker" group
+RUN usermod -aG docker actions
+
+# Adjust permissions for Docker socket
+RUN mkdir -p /var/run/docker.sock && \
+    chown root:docker /var/run/docker.sock && \
+    chmod 660 /var/run/docker.sock
 
 USER actions
 WORKDIR $RUNNER_HOME
