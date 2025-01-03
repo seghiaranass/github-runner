@@ -1,20 +1,10 @@
 FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG DOCKER_GROUP_GID=988 # GID of the host's docker group
 
-# Set the GitHub Actions runner version you want.
-# Check https://github.com/actions/runner/releases for the latest version.
-ENV RUNNER_VERSION="2.321.0"
-ENV RUNNER_ARCH="x64"
-ENV RUNNER_HOME="/actions"
-ENV RUNNER_WORKDIR="${RUNNER_HOME}/_work"
-ENV RUNNER_TGZ="actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz"
 
-# Install required packages: 
-#   - curl: to download the runner 
-#   - ca-certificates: in case you need TLS 
-#   - jq: helpful in scripts 
-#   - docker.io: the Docker CLI 
+# Install required packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
@@ -26,41 +16,34 @@ RUN apt-get update && \
         libkrb5-3 \
         zlib1g \
         libssl-dev \
-        docker.io \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+        docker.io && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Ensure 'docker' group exists in container
-RUN groupadd docker || true
 
-# Create a non-root user "actions" to run the runner
-RUN useradd --create-home actions && \
-    mkdir -p ${RUNNER_HOME} && \
-    chown -R actions:actions ${RUNNER_HOME}
+# Install docker compose
+RUN curl -L "https://github.com/docker/compose/releases/download/v2.32.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+RUN mv /usr/local/bin/docker-compose /usr/bin/docker-compose
+RUN chmod +x /usr/bin/docker-compose
 
-# Add "actions" user to the "docker" group
-RUN usermod -aG docker actions
-
-# Adjust permissions for Docker socket
-RUN mkdir -p /var/run/docker.sock && \
-    chown root:docker /var/run/docker.sock && \
-    chmod 660 /var/run/docker.sock
+# Create docker group with the correct GID and user
+RUN groupadd -g ${DOCKER_GROUP_GID} docker || true && \
+    useradd --create-home actions && \
+    usermod -aG docker actions
 
 USER actions
-WORKDIR $RUNNER_HOME
+WORKDIR /actions
 
-# Download and extract the GitHub Runner
-RUN curl -o ${RUNNER_TGZ} -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/${RUNNER_TGZ} && \
-    tar xzf ${RUNNER_TGZ} && \
-    rm -f ${RUNNER_TGZ}
+# Your existing runner setup
+RUN curl -o actions-runner-linux-x64-2.321.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz && \
+    tar xzf actions-runner-linux-x64-2.321.0.tar.gz && \
+    rm -f actions-runner-linux-x64-2.321.0.tar.gz
 
-# Copy our entrypoint script (as root, then correct perms)
 USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && chown actions:actions /entrypoint.sh
 USER actions
 
-# By default, this directory is where runner will do builds
-RUN mkdir -p ${RUNNER_WORKDIR}
+# Create work directory
+RUN mkdir -p /actions/_work
 
-# Use our entrypoint (which runs config.sh + run.sh)
 ENTRYPOINT ["/entrypoint.sh"]

@@ -3,15 +3,14 @@ services:
     build: .
     container_name: github-actions-runner
     privileged: true
-    # Bind the host's Docker socket to use the host Docker daemon
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:rw
       - ~/runner-worker:/home/actions/_work
-      
-    environment: 
+    environment:
       - RUNNER_URL=${RUNNER_URL}
       - RUNNER_TOKEN=${RUNNER_TOKEN}
       - RUNNER_NAME=${RUNNER_NAME}
       - RUNNER_LABELS=${RUNNER_LABELS}
-
     restart: unless-stopped
+    group_add:
+      - 988
